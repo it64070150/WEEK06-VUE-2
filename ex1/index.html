@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic of Vue 2 - Part 1</title>
+    <title>Basic of Vue 2 - Part 1.</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 </head>
 
@@ -101,7 +101,7 @@
             <div id='ex2'>
 
                 <!-- ปุ่ม Add Student------------------- -->
-                <a class="button is-primary">Add Student</a>
+                <a @click="addStudent()" class="button is-primary">Add Student</a>
 
                 <div>
                     <table class="table">
@@ -114,12 +114,13 @@
                         </thead>
                         <tbody>
                             <!-- ตัวอย่างข้อมูล------------ -->
-                            <tr>
-                                <td>นายxxxxx yyyyy</td>
-                                <td>99</td>
+                            
+                            <tr v-for="(student, index) in students" :key="index">
+                                <td>{{student.name}}</td>
+                                <td>{{student.score}}</td>
                                 <td>
                                     <!-- ปุ่ม Delete------------------- -->
-                                    <a class="button is-danger">Delete</a>
+                                    <a @click="removeStudent(index)" class="button is-danger">Delete</a>
                                 </td>
                             </tr>
 
@@ -168,14 +169,14 @@
                             <th class="is-warning">sum</th>
                             <td>
                                 <!-- แสดงผลรวมคะแนนที่นี้ -->
-                                120
+                                {{sumScore}}
                             </td>
                         </tr>
                         <tr>
                             <th class="is-primary">avarage</th>
                             <td>
                                 <!-- แสดงค่าเฉลี่ยที่นี่ -->
-                                12.3
+                                {{avarageScore}}
                             </td>
                         </tr>
                     </tbody>
@@ -223,6 +224,12 @@
                             <td>55</td>
                             <td style="color : green">+ 6.5</td>
                         </tr>
+                        <tr v-for="log in logs">
+                            <td>{{log.avgcha}}</td>
+                            <td>{{log.old}}</td>
+                            <td v-if="log.avgcha < log.old" style="color : green">+ {{log.dif}}</td>
+                            <td v-else style="color : red">- {{log.dif}}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -239,7 +246,7 @@
                     <div class="columns">
                     <div class="column">
                     <p class="control has-icons-left">
-                            <input class="input" type="text" placeholder="Name Search by Watchers">
+                            <input v-model="search" class="input" type="text" placeholder="Name Search by Watchers">
                       <span class="icon is-small is-left">
                         <i class="fa fa-search"></i>
                       </span>
@@ -258,7 +265,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in dummyData"  :key="index">
+                        <tr v-for="(item, index) in dumCopy"  :key="index">
                             <td>{{item.first_name}}</td>
                             <td>{{item.last_name}}</td>
                             <td>{{item.email}}</td>
@@ -277,14 +284,14 @@
                 <div style="display: flex; justify-content: flex-end;" class="my-2">
                     <div class="control has-icons-left">
                         <div class="select">
-                          <select>
+                          <select v-model="gender">
                             <option></option>
-                            <option>Male</option>
-                            <option>Female</option>
-                            <option>Agender</option>
-                            <option>Bigender</option>
-                            <option>Genderfluid</option>
-                            <option>Non-binary</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Agender">Agender</option>
+                            <option value="Bigender">Bigender</option>
+                            <option value="Genderfluid">Genderfluid</option>
+                            <option value="Non-binary">Non-binary</option>
                           </select>
                         </div>
                         <span class="icon is-left">
@@ -303,7 +310,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in dummyData"  :key="index">
+                        <tr v-for="(item, index) in filterGender"  :key="index">
                             <td>{{item.first_name}}</td>
                             <td>{{item.last_name}}</td>
                             <td>{{item.email}}</td>
@@ -326,7 +333,77 @@
                 message: 'Hello Vue!',
                 students: [],
                 logs: [],
+                search: '',
                 dummyData: dummyData,
+                dumCopy: dummyData,
+                prename: null,
+                fname: null,
+                lname: null,
+                score: null,
+                gender: ''
+            },
+            methods: {
+                addStudent(){
+                    if(!this.prename || !this.fname || !this.lname || !this.score){
+                        alert("Please enter all inputs")
+                    }
+                    else if(0 > parseInt(this.score) || parseInt(this.score) > 100){
+                        alert("Score is incorrect")
+                    }
+                    else{
+                        this.students.push({
+                            name: this.prename + this.fname + " " +this.lname,
+                            score: this.score
+                        })
+                    }
+                },
+                removeStudent(index){
+                    this.students.splice(index, 1)
+                }
+            },
+            computed: {
+                sumScore(){
+                    let sum = 0
+                    let copystudent = this.students
+                    for(i = 0; i < copystudent.length; i++){
+                        sum += parseInt(copystudent[i].score)
+                    }
+                    return sum
+                },
+                avarageScore(){
+                    let avg = 0
+                    if(this.students.length > 0){
+                        avg = this.sumScore / this.students.length
+                    }
+                    return avg
+                },
+                filterGender(){
+                    return dummyData.filter(data => data.gender.includes(this.gender))
+                }
+            },
+            watch: {
+                avarageScore: function logs(newValue, oldValue){
+                    let diff = 0.0
+                    if(newValue > oldValue){
+                        diff = newValue - oldValue
+                    }
+                    else{
+                        diff = oldValue - newValue
+                    }
+                    this.logs.push({
+                        avgcha: newValue,
+                        old: oldValue,
+                        dif: diff
+                    })
+                },
+
+                search: function Search(value){
+                    value = value.toLowerCase()
+                    this.dumCopy = this.dummyData
+                    let seachArr = this.dumCopy.filter(data => data.first_name.toLowerCase().includes(value) || data.last_name.toLowerCase().includes(value))
+                    this.dumCopy = seachArr
+                    
+                }
             },
         })
     </script>
