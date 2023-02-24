@@ -246,7 +246,7 @@
                     <div class="columns">
                     <div class="column">
                     <p class="control has-icons-left">
-                            <input v-model="search" class="input" type="text" placeholder="Name Search by Watchers">
+                            <input v-model="search" class="input" type="text" placeholder="Name Search by Watchers" v-model="search">
                       <span class="icon is-small is-left">
                         <i class="fa fa-search"></i>
                       </span>
@@ -265,7 +265,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in dumCopy"  :key="index">
+                        <tr v-for="(item, index) in dummyData"  :key="index">
                             <td>{{item.first_name}}</td>
                             <td>{{item.last_name}}</td>
                             <td>{{item.email}}</td>
@@ -335,7 +335,6 @@
                 logs: [],
                 search: '',
                 dummyData: dummyData,
-                dumCopy: dummyData,
                 prename: null,
                 fname: null,
                 lname: null,
@@ -396,14 +395,11 @@
                         dif: diff
                     })
                 },
-
-                search: function Search(value){
-                    value = value.toLowerCase()
-                    this.dumCopy = this.dummyData
-                    let seachArr = this.dumCopy.filter(data => data.first_name.toLowerCase().includes(value) || data.last_name.toLowerCase().includes(value))
-                    this.dumCopy = seachArr
-                    
-                }
+            search :function(newmessage, oldmessage){
+                this.dummyData = dummyData.filter((item) => {
+                    return (item.first_name.toLowerCase() +" "+item.last_name.toLowerCase()).includes(newmessage)
+                })
+            }
             },
         })
     </script>
